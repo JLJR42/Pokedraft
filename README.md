@@ -12,7 +12,7 @@ A browser-only draft and league board for friends playing **6v6 National Dex Ube
 - Reroll candidate generation after losses, with candidate count equal to the loss streak.
 - Pure game engine in `src/game/engine.js`, separate from DOM rendering.
 
-Reroll replacement controls are deliberately the next incremental UI task; the engine already validates accepting zero, one, or multiple candidates and replacing distinct roster slots.
+Reroll replacement controls show every candidate and let the player accept zero, one, or multiple candidates while choosing distinct roster slots.
 
 ## Run it
 
