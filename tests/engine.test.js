@@ -49,3 +49,15 @@ test('a resolved reroll cannot be created again, even when every candidate is di
   assert.throws(() => engine.createRerollCandidates(league, 'player-2'), /only once after each loss/);
   assert.throws(() => engine.resolveReroll(league, reroll.id, []), /already been resolved/);
 });
+
+test('a new battle cannot be recorded until the previous loss reroll is resolved', () => {
+  const { engine, league } = setup();
+  for (const pokemon of league.draft.pool) engine.pick(league, pokemon.name);
+  engine.recordMatch(league, 'player-1');
+  const reroll = engine.createRerollCandidates(league, 'player-2');
+  assert.throws(() => engine.recordMatch(league, 'player-1'), /Resolve the current reroll/);
+  engine.resolveReroll(league, reroll.id, []);
+  engine.recordMatch(league, 'player-1');
+  assert.equal(league.matches.length, 2);
+  assert.equal(league.players[1].rerollAvailable, true);
+});

@@ -63,6 +63,7 @@ export class LeagueEngine {
 
   recordMatch(league, winnerId) {
     if (league.phase !== 'league') throw new Error('Finish the draft before recording matches.');
+    if (league.rerolls.some((reroll) => !reroll.resolved)) throw new Error('Resolve the current reroll before recording another battle.');
     const winner = league.players.find((player) => player.id === winnerId);
     const loser = league.players.find((player) => player.id !== winnerId);
     if (!winner || !loser) throw new Error('Choose a valid winner.');
