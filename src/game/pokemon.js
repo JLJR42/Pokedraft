@@ -1,10 +1,27 @@
 export const FORMAT = '6v6 National Dex Ubers Doubles';
 
-const EXCLUDED_FORM_SUFFIXES = ['-mega', '-gmax', '-gigantamax', '-dynamax', '-eternamax'];
+const REGIONAL_FORM_SUFFIXES = ['-alola', '-galar', '-hisui', '-paldea'];
+const CANONICAL_HYPHENATED_NAMES = new Set([
+  'farfetchd', 'ho-oh', 'mr-mime', 'mime-jr', 'nidoran-f', 'nidoran-m', 'porygon-z', 'type-null',
+  'jangmo-o', 'hakamo-o', 'kommo-o', 'tapu-koko', 'tapu-lele', 'tapu-bulu', 'tapu-fini',
+  'wo-chien', 'chien-pao', 'ting-lu', 'chi-yu'
+]);
 
 export function isDraftEligiblePokemon(pokemon) {
   const name = typeof pokemon === 'string' ? pokemon : pokemon?.name;
-  return Boolean(name) && !EXCLUDED_FORM_SUFFIXES.some((suffix) => name.toLowerCase().includes(suffix));
+  if (!name) return false;
+  const normalizedName = name.toLowerCase();
+  if (REGIONAL_FORM_SUFFIXES.some((suffix) => normalizedName.endsWith(suffix))) return true;
+  if (!normalizedName.includes('-')) return true;
+  return CANONICAL_HYPHENATED_NAMES.has(normalizedName);
+}
+
+export function getPokedexSlug(name) {
+  const normalizedName = name.toLowerCase();
+  const regionalSuffix = REGIONAL_FORM_SUFFIXES.find((suffix) => normalizedName.endsWith(suffix));
+  return (regionalSuffix ? normalizedName.slice(0, -regionalSuffix.length) : normalizedName)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 // Compact local seed data keeps the first version fully usable on GitHub Pages.

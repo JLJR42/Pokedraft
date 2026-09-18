@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DUPLICATE_MODES, LeagueEngine } from '../src/game/engine.js';
-import { POKEMON_POOL } from '../src/game/pokemon.js';
-import { isDraftEligiblePokemon } from '../src/game/pokemon.js';
+import { getPokedexSlug, isDraftEligiblePokemon, POKEMON_POOL } from '../src/game/pokemon.js';
 
 const setup = (duplicateMode = DUPLICATE_MODES.players) => {
   const engine = new LeagueEngine({ pokemonPool: POKEMON_POOL, random: () => 0 });
@@ -27,6 +26,16 @@ test('excludes transformation-only forms but keeps the base species', () => {
   assert.equal(isDraftEligiblePokemon('charizard-gmax'), false);
   assert.equal(isDraftEligiblePokemon('pikachu-gigantamax'), false);
   assert.equal(isDraftEligiblePokemon('eternatus-eternamax'), false);
+  assert.equal(isDraftEligiblePokemon('gourgeist-super-size'), false);
+  assert.equal(isDraftEligiblePokemon('pikachu-original-cap'), false);
+  assert.equal(isDraftEligiblePokemon('typhlosion-hisui'), true);
+  assert.equal(isDraftEligiblePokemon('growlithe-hisui'), true);
+});
+
+test('regional PokéDB links use the shared species page', () => {
+  assert.equal(getPokedexSlug('typhlosion-hisui'), 'typhlosion');
+  assert.equal(getPokedexSlug('growlithe-hisui'), 'growlithe');
+  assert.equal(getPokedexSlug('garchomp'), 'garchomp');
 });
 
 test('the engine excludes transformation forms from an injected pool', () => {

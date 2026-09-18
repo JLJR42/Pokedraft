@@ -11,6 +11,7 @@ A browser-only draft and league board for friends playing **6v6 National Dex Ube
 - Match recording, standings, win/loss records, and consecutive loss streaks.
 - Reroll candidate generation after losses, with candidate count equal to the loss streak and one resolved reroll per loss sequence.
 - Candidate cards show types, abilities, base stats, and links to PokéDB.
+- Draft eligibility includes base species and regional variants such as Alola, Galar, Hisui, and Paldea. Battle-only and cosmetic forms such as Mega, Gigantamax, Dynamax, Eternamax, Pikachu caps, and Gourgeist sizes are excluded.
 - Mega, Gigantamax, Dynamax, and Eternamax form entries are excluded; base species such as Garchomp remain draftable and may be Mega Evolved during play if the battle rules allow it.
 - Pure game engine in `src/game/engine.js`, separate from DOM rendering.
 
@@ -31,7 +32,7 @@ npm test
 ## Structure
 
 - `src/game/engine.js`: framework-free league rules and state transitions.
-- `src/game/pokemon.js`: offline fallback Pokémon seed data.
+- `src/game/pokemon.js`: offline fallback Pokémon seed data and form eligibility rules.
 - `src/game/pokemon-api.js`: cached PokéAPI index and on-demand candidate details.
 - `src/ui/app.js`: DOM rendering, event wiring, and local persistence.
 - `src/ui/styles.css`: responsive visual layer.
