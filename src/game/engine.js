@@ -77,10 +77,12 @@ export class LeagueEngine {
   createRerollCandidates(league, playerId) {
     const player = league.players.find((entry) => entry.id === playerId);
     if (!player || player.lossStreak < 1) throw new Error('A reroll is available only after a loss.');
+    if (league.rerolls.some((reroll) => reroll.playerId === playerId && !reroll.resolved)) throw new Error('Resolve the current reroll before creating another one.');
     const available = this.getAvailable(league).filter((pokemon) => league.duplicateMode === DUPLICATE_MODES.unlimited || !player.roster.some((pick) => pick.name === pokemon.name));
     if (available.length < 1) throw new Error('There are no eligible reroll candidates for this roster.');
-    const candidates = Array.from({ length: player.lossStreak }, () => available[Math.floor(this.random() * available.length)]);
-    const reroll = { id: `reroll-${league.rerolls.length + 1}`, playerId, candidates: clone(candidates), accepted: [], createdAt: new Date().toISOString() };
+    const candidates = this.sample(available, Math.min(player.lossStreak, available.length));
+    while (candidates.length < player.lossStreak) candidates.push(available[Math.floor(this.random() * available.length)]);
+    const reroll = { id: `reroll-${league.rerolls.length + 1}`, playerId, candidates: clone(candidates), accepted: [], resolved: false, createdAt: new Date().toISOString() };
     league.rerolls.push(reroll);
     return reroll;
   }
@@ -88,7 +90,7 @@ export class LeagueEngine {
   resolveReroll(league, rerollId, replacements) {
     const reroll = league.rerolls.find((entry) => entry.id === rerollId);
     const player = reroll && league.players.find((entry) => entry.id === reroll.playerId);
-    if (!reroll || !player || reroll.accepted.length) throw new Error('That reroll has already been resolved or does not exist.');
+    if (!reroll || !player || reroll.resolved) throw new Error('That reroll has already been resolved or does not exist.');
     const candidateNames = new Set(reroll.candidates.map((candidate) => candidate.name));
     const usedSlots = new Set();
     for (const replacement of replacements) {
@@ -99,6 +101,7 @@ export class LeagueEngine {
       usedSlots.add(replacement.rosterName);
     }
     reroll.accepted = clone(replacements);
+    reroll.resolved = true;
     return league;
   }
 

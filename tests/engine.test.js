@@ -38,3 +38,14 @@ test('a win resets the winner loss streak', () => {
   assert.equal(league.players[0].lossStreak, 1);
   assert.equal(league.players[1].lossStreak, 0);
 });
+
+test('a resolved reroll cannot be created again, even when every candidate is discarded', () => {
+  const { engine, league } = setup();
+  for (const pokemon of league.draft.pool) engine.pick(league, pokemon.name);
+  engine.recordMatch(league, 'player-1');
+  const reroll = engine.createRerollCandidates(league, 'player-2');
+  engine.resolveReroll(league, reroll.id, []);
+  assert.equal(reroll.resolved, true);
+  assert.throws(() => engine.createRerollCandidates(league, 'player-2'), /Resolve the current reroll/);
+  assert.throws(() => engine.resolveReroll(league, reroll.id, []), /already been resolved/);
+});
