@@ -1,7 +1,7 @@
-import { POKEMON_POOL } from './pokemon.js';
+import { isDraftEligiblePokemon, POKEMON_POOL } from './pokemon.js';
 
 const INDEX_URL = 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
-const INDEX_CACHE_KEY = 'pokedraft-pokemon-index-v1';
+const INDEX_CACHE_KEY = 'pokedraft-pokemon-index-v2';
 const DETAIL_CACHE_KEY = 'pokedraft-pokemon-details-v1';
 const REQUEST_TIMEOUT_MS = 8000;
 
@@ -30,7 +30,7 @@ export async function loadPokemonIndex() {
   if (cached?.length) return cached;
   try {
     const result = await getJson(INDEX_URL);
-    const index = result.results.map(({ name, url }) => ({ name, apiUrl: url, types: [], ability: 'Details loading', stats: [] }));
+    const index = result.results.filter(({ name }) => isDraftEligiblePokemon(name)).map(({ name, url }) => ({ name, apiUrl: url, types: [], ability: 'Details loading', stats: [] }));
     writeCache(INDEX_CACHE_KEY, index);
     return index;
   } catch {

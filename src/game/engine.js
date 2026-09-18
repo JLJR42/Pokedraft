@@ -1,3 +1,5 @@
+import { isDraftEligiblePokemon } from './pokemon.js';
+
 export const DUPLICATE_MODES = Object.freeze({
   league: 'league',
   players: 'players',
@@ -40,6 +42,7 @@ export class LeagueEngine {
   getAvailable(league, { exclude = [] } = {}) {
     const excluded = new Set(exclude.map((pokemon) => pokemon.name));
     return this.pokemonPool.filter((pokemon) => {
+      if (!isDraftEligiblePokemon(pokemon)) return false;
       if (excluded.has(pokemon.name)) return false;
       if (league.duplicateMode === DUPLICATE_MODES.league) return !league.players.some((player) => player.roster.some((pick) => pick.name === pokemon.name));
       return true;

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DUPLICATE_MODES, LeagueEngine } from '../src/game/engine.js';
 import { POKEMON_POOL } from '../src/game/pokemon.js';
+import { isDraftEligiblePokemon } from '../src/game/pokemon.js';
 
 const setup = (duplicateMode = DUPLICATE_MODES.players) => {
   const engine = new LeagueEngine({ pokemonPool: POKEMON_POOL, random: () => 0 });
@@ -18,6 +19,20 @@ test('generates a twelve-Pokemon pool and snake draft fills both rosters', () =>
   assert.deepEqual(league.players.map((player) => player.roster.length), [6, 6]);
   assert.equal(league.draft.picks[0].playerId, 'player-1');
   assert.equal(league.draft.picks[1].playerId, 'player-2');
+});
+
+test('excludes transformation-only forms but keeps the base species', () => {
+  assert.equal(isDraftEligiblePokemon('garchomp'), true);
+  assert.equal(isDraftEligiblePokemon('garchomp-mega'), false);
+  assert.equal(isDraftEligiblePokemon('charizard-gmax'), false);
+  assert.equal(isDraftEligiblePokemon('pikachu-gigantamax'), false);
+  assert.equal(isDraftEligiblePokemon('eternatus-eternamax'), false);
+});
+
+test('the engine excludes transformation forms from an injected pool', () => {
+  const engine = new LeagueEngine({ pokemonPool: [{ name: 'garchomp' }, { name: 'garchomp-mega' }, { name: 'charizard-gmax' }] });
+  const league = engine.createLeague({ playerNames: ['Ash', 'Misty'] });
+  assert.deepEqual(engine.getAvailable(league).map((pokemon) => pokemon.name), ['garchomp']);
 });
 
 test('a loss increments streak and creates that many independent candidates', () => {

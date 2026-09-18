@@ -1,5 +1,12 @@
 export const FORMAT = '6v6 National Dex Ubers Doubles';
 
+const EXCLUDED_FORM_SUFFIXES = ['-mega', '-gmax', '-gigantamax', '-dynamax', '-eternamax'];
+
+export function isDraftEligiblePokemon(pokemon) {
+  const name = typeof pokemon === 'string' ? pokemon : pokemon?.name;
+  return Boolean(name) && !EXCLUDED_FORM_SUFFIXES.some((suffix) => name.toLowerCase().includes(suffix));
+}
+
 // Compact local seed data keeps the first version fully usable on GitHub Pages.
 export const POKEMON_POOL = [
   ['Miraidon','Electric / Dragon','Hadron Engine',[100,135,115,135,115,135]],

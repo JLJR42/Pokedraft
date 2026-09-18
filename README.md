@@ -11,6 +11,7 @@ A browser-only draft and league board for friends playing **6v6 National Dex Ube
 - Match recording, standings, win/loss records, and consecutive loss streaks.
 - Reroll candidate generation after losses, with candidate count equal to the loss streak and one resolved reroll per loss sequence.
 - Candidate cards show types, abilities, base stats, and links to PokéDB.
+- Mega, Gigantamax, Dynamax, and Eternamax form entries are excluded; base species such as Garchomp remain draftable and may be Mega Evolved during play if the battle rules allow it.
 - Pure game engine in `src/game/engine.js`, separate from DOM rendering.
 
 Reroll replacement controls show every candidate and let the player accept zero, one, or multiple candidates while choosing distinct roster slots.
