@@ -20,7 +20,7 @@ export class LeagueEngine {
       format: '6v6 National Dex Ubers Doubles',
       duplicateMode,
       phase: 'draft',
-      players: playerNames.map((name, index) => ({ id: `player-${index + 1}`, name: name.trim(), roster: [], wins: 0, losses: 0, lossStreak: 0 })),
+      players: playerNames.map((name, index) => ({ id: `player-${index + 1}`, name: name.trim(), roster: [], wins: 0, losses: 0, lossStreak: 0, rerollAvailable: false })),
       draft: { pool: [], picks: [], currentPick: 0 },
       matches: [],
       rerolls: []
@@ -68,21 +68,24 @@ export class LeagueEngine {
     if (!winner || !loser) throw new Error('Choose a valid winner.');
     winner.wins += 1;
     winner.lossStreak = 0;
+    winner.rerollAvailable = false;
     loser.losses += 1;
     loser.lossStreak += 1;
+    loser.rerollAvailable = true;
     league.matches.push({ id: `match-${league.matches.length + 1}`, winnerId: winner.id, loserId: loser.id, playedAt: new Date().toISOString() });
     return league;
   }
 
   createRerollCandidates(league, playerId) {
     const player = league.players.find((entry) => entry.id === playerId);
-    if (!player || player.lossStreak < 1) throw new Error('A reroll is available only after a loss.');
+    if (!player || !player.rerollAvailable) throw new Error('A reroll is available only once after each loss.');
     if (league.rerolls.some((reroll) => reroll.playerId === playerId && !reroll.resolved)) throw new Error('Resolve the current reroll before creating another one.');
     const available = this.getAvailable(league).filter((pokemon) => league.duplicateMode === DUPLICATE_MODES.unlimited || !player.roster.some((pick) => pick.name === pokemon.name));
     if (available.length < 1) throw new Error('There are no eligible reroll candidates for this roster.');
     const candidates = this.sample(available, Math.min(player.lossStreak, available.length));
     while (candidates.length < player.lossStreak) candidates.push(available[Math.floor(this.random() * available.length)]);
     const reroll = { id: `reroll-${league.rerolls.length + 1}`, playerId, candidates: clone(candidates), accepted: [], resolved: false, createdAt: new Date().toISOString() };
+    player.rerollAvailable = false;
     league.rerolls.push(reroll);
     return reroll;
   }

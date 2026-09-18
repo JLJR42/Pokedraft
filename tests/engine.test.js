@@ -46,6 +46,6 @@ test('a resolved reroll cannot be created again, even when every candidate is di
   const reroll = engine.createRerollCandidates(league, 'player-2');
   engine.resolveReroll(league, reroll.id, []);
   assert.equal(reroll.resolved, true);
-  assert.throws(() => engine.createRerollCandidates(league, 'player-2'), /Resolve the current reroll/);
+  assert.throws(() => engine.createRerollCandidates(league, 'player-2'), /only once after each loss/);
   assert.throws(() => engine.resolveReroll(league, reroll.id, []), /already been resolved/);
 });
